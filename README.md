@@ -12,7 +12,7 @@ This project is a toy box for my dynamic language ideas.
   - [ ] Make `is_a?` guards more elegant
   - [ ] Import test cases from Mal
   - [ ] Add CI
-  - [ ] More OOP (`evaluator`)
+  - [ ] More OOP (`evaluator`, remove global variable, move states into object)
   - [x] Use standard `readline` implementation
   - [ ] Better lexer and parser
   - [ ] Add examples
@@ -29,7 +29,7 @@ This project is a toy box for my dynamic language ideas.
 ## Development Environment
 
 - OS X
-- Crystal 0.7.1
+- Crystal 0.7.1, 0.7.2
 
 ## License
 
