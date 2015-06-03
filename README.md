@@ -8,15 +8,17 @@ This project is a toy box for my dynamic language ideas.
 
 ## So Many Tasks
 
-- [ ] Refactorings
+- __Refactorings__
   - [ ] Make `is_a?` guards more elegant
   - [ ] Import test cases from Mal
   - [ ] Add CI
   - [ ] More OOP (`evaluator`)
-  - [ ] Use standard `readline` implementation
+  - [x] Use standard `readline` implementation
   - [ ] Better lexer and parser
   - [ ] Add examples
-- [ ] Add more language features using Crystal's semantics (e.g. union type)
+  - [ ] More convenient REPL (e.g. completion)
+- __New language features using Crystal's semantics__
+  - [ ] Algebraic data type
   - ...
 
 ## Installation

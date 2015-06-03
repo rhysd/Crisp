@@ -1,10 +1,10 @@
 require "time"
+require "readline"
 
 require "./types"
 require "./error"
 require "./printer"
 require "./reader"
-require "./readline"
 
 module Crisp
 
@@ -274,7 +274,7 @@ end
 def self.readline(args)
   head = args.first.unwrap
   eval_error "1st argument of readline must be string" unless head.is_a? String
-  my_readline head
+  Readline.readline head
 end
 
 def self.meta(args)

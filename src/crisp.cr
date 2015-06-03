@@ -1,8 +1,8 @@
 #! /usr/bin/env crystal run
 
 require "colorize"
+require "readline"
 
-require "./readline"
 require "./reader"
 require "./printer"
 require "./types"
@@ -269,7 +269,7 @@ unless ARGV.empty?
   exit
 end
 
-while line = my_readline("Crisp> ")
+while line = Readline.readline("Crisp> ", true)
   begin
     puts rep(line)
   rescue e
