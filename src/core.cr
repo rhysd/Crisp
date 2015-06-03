@@ -6,22 +6,22 @@ require "./printer"
 require "./reader"
 require "./readline"
 
-module Mal
+module Crisp
 
 macro calc_op(op)
-  -> (args : Array(Mal::Type)) {
+  -> (args : Array(Crisp::Type)) {
     x, y = args[0].unwrap, args[1].unwrap
     eval_error "invalid arguments for binary operator {{op.id}}" unless x.is_a?(Int32) && y.is_a?(Int32)
-    Mal::Type.new(x {{op.id}} y)
+    Crisp::Type.new(x {{op.id}} y)
   }
 end
 
 def self.list(args)
-  args.to_mal
+  args.to_crisp_value
 end
 
 def self.list?(args)
-  args.first.unwrap.is_a? Mal::List
+  args.first.unwrap.is_a? Crisp::List
 end
 
 def self.empty?(args)
@@ -76,13 +76,13 @@ def self.slurp(args)
 end
 
 def self.cons(args)
-  head, tail = args[0] as Mal::Type, args[1].unwrap
+  head, tail = args[0] as Crisp::Type, args[1].unwrap
   eval_error "2nd arg of cons must be list" unless tail.is_a? Array
-  ([head] + tail).to_mal
+  ([head] + tail).to_crisp_value
 end
 
 def self.concat(args)
-  args.each_with_object(Mal::List.new) do |arg, list|
+  args.each_with_object(Crisp::List.new) do |arg, list|
     a = arg.unwrap
     eval_error "arguments of concat must be list" unless a.is_a?(Array)
     a.each{|e| list << e}
@@ -107,10 +107,10 @@ end
 def self.rest(args)
   a0 = args[0].unwrap
 
-  return Mal::List.new if a0.nil?
+  return Crisp::List.new if a0.nil?
   eval_error "1st argument of first must be list or vector or nil" unless a0.is_a? Array
-  return Mal::List.new if a0.empty?
-  a0[1..-1].to_mal
+  return Crisp::List.new if a0.empty?
+  a0[1..-1].to_crisp_value
 end
 
 def self.apply(args)
@@ -122,9 +122,9 @@ def self.apply(args)
   eval_error "last argument of apply must be list or vector" unless last.is_a? Array
 
   case head
-  when Mal::Closure
+  when Crisp::Closure
     head.fn.call(args[1..-2] + last)
-  when Mal::Func
+  when Crisp::Func
     head.call(args[1..-2] + last)
   else
     eval_error "1st argument of apply must be function or closure"
@@ -138,12 +138,12 @@ def self.map(args)
   eval_error "2nd argument of map must be list or vector" unless list.is_a? Array
 
   f = case func
-      when Mal::Closure then func.fn
-      when Mal::Func    then func
+      when Crisp::Closure then func.fn
+      when Crisp::Func    then func
       else                   eval_error "1st argument of map must be function"
       end
 
-  list.each_with_object(Mal::List.new) do |elem, mapped|
+  list.each_with_object(Crisp::List.new) do |elem, mapped|
     mapped << f.call([elem])
   end
 end
@@ -163,13 +163,13 @@ def self.false?(args)
 end
 
 def self.symbol?(args)
-  args.first.unwrap.is_a?(Mal::Symbol)
+  args.first.unwrap.is_a?(Crisp::Symbol)
 end
 
 def self.symbol(args)
   head = args.first.unwrap
   eval_error "1st argument of symbol function must be string" unless head.is_a? String
-  Mal::Symbol.new head
+  Crisp::Symbol.new head
 end
 
 def self.keyword(args)
@@ -184,16 +184,16 @@ def self.keyword?(args)
 end
 
 def self.vector(args)
-  args.to_mal(Mal::Vector)
+  args.to_crisp_value(Crisp::Vector)
 end
 
 def self.vector?(args)
-  args.first.unwrap.is_a? Mal::Vector
+  args.first.unwrap.is_a? Crisp::Vector
 end
 
 def self.hash_map(args)
   eval_error "hash-map must take even number of arguments" unless args.size.even?
-  map = Mal::HashMap.new
+  map = Crisp::HashMap.new
   args.each_slice(2) do |kv|
     k = kv[0].unwrap
     eval_error "key must be string" unless k.is_a? String
@@ -203,15 +203,15 @@ def self.hash_map(args)
 end
 
 def self.map?(args)
-  args.first.unwrap.is_a? Mal::HashMap
+  args.first.unwrap.is_a? Crisp::HashMap
 end
 
 def self.assoc(args)
   head = args.first.unwrap
-  eval_error "1st argument of assoc must be hashmap" unless head.is_a? Mal::HashMap
+  eval_error "1st argument of assoc must be hashmap" unless head.is_a? Crisp::HashMap
   eval_error "assoc must take a list and even number of arguments" unless (args.size - 1).even?
 
-  map = Mal::HashMap.new
+  map = Crisp::HashMap.new
   head.each{|k, v| map[k] = v}
 
   args[1..-1].each_slice(2) do |kv|
@@ -225,9 +225,9 @@ end
 
 def self.dissoc(args)
   head = args.first.unwrap
-  eval_error "1st argument of assoc must be hashmap" unless head.is_a? Mal::HashMap
+  eval_error "1st argument of assoc must be hashmap" unless head.is_a? Crisp::HashMap
 
-  map = Mal::HashMap.new
+  map = Crisp::HashMap.new
   head.each{|k,v| map[k] = v}
 
   args[1..-1].each do |arg|
@@ -241,7 +241,7 @@ end
 
 def self.get(args)
   a0, a1 = args[0].unwrap, args[1].unwrap
-  return nil unless a0.is_a? Mal::HashMap
+  return nil unless a0.is_a? Crisp::HashMap
   eval_error "2nd argument of get must be string" unless a1.is_a? String
 
   # a0[a1]? isn't available because type ofa0[a1] is infered NoReturn
@@ -250,21 +250,21 @@ end
 
 def self.contains?(args)
   a0, a1 = args[0].unwrap, args[1].unwrap
-  eval_error "1st argument of get must be hashmap" unless a0.is_a? Mal::HashMap
+  eval_error "1st argument of get must be hashmap" unless a0.is_a? Crisp::HashMap
   eval_error "2nd argument of get must be string" unless a1.is_a? String
   a0.has_key? a1
 end
 
 def self.keys(args)
   head = args.first.unwrap
-  eval_error "1st argument of assoc must be hashmap" unless head.is_a? Mal::HashMap
-  head.keys.each_with_object(Mal::List.new){|e,l| l << Mal::Type.new(e)}
+  eval_error "1st argument of assoc must be hashmap" unless head.is_a? Crisp::HashMap
+  head.keys.each_with_object(Crisp::List.new){|e,l| l << Crisp::Type.new(e)}
 end
 
 def self.vals(args)
   head = args.first.unwrap
-  eval_error "1st argument of assoc must be hashmap" unless head.is_a? Mal::HashMap
-  head.values.to_mal
+  eval_error "1st argument of assoc must be hashmap" unless head.is_a? Crisp::HashMap
+  head.values.to_crisp_value
 end
 
 def self.sequential?(args)
@@ -289,36 +289,36 @@ def self.with_meta(args)
 end
 
 def self.atom(args)
-  Mal::Atom.new args.first
+  Crisp::Atom.new args.first
 end
 
 def self.atom?(args)
-  args.first.unwrap.is_a? Mal::Atom
+  args.first.unwrap.is_a? Crisp::Atom
 end
 
 def self.deref(args)
   head = args.first.unwrap
-  eval_error "1st argument of deref must be atom" unless head.is_a? Mal::Atom
+  eval_error "1st argument of deref must be atom" unless head.is_a? Crisp::Atom
   head.val
 end
 
 def self.reset!(args)
   head = args.first.unwrap
-  eval_error "1st argument of reset! must be atom" unless head.is_a? Mal::Atom
+  eval_error "1st argument of reset! must be atom" unless head.is_a? Crisp::Atom
   head.val = args[1]
 end
 
 def self.swap!(args)
   atom = args.first.unwrap
-  eval_error "1st argument of swap! must be atom" unless atom.is_a? Mal::Atom
+  eval_error "1st argument of swap! must be atom" unless atom.is_a? Crisp::Atom
 
   a = [atom.val] + args[2..-1]
 
   func = args[1].unwrap
   case func
-  when Mal::Func
+  when Crisp::Func
     atom.val = func.call a
-  when Mal::Closure
+  when Crisp::Closure
     atom.val = func.fn.call a
   else
     eval_error "2nd argumetn of swap! must be function"
@@ -328,10 +328,10 @@ end
 def self.conj(args)
   seq = args.first.unwrap
   case seq
-  when Mal::List
-    (args[1..-1].reverse + seq).to_mal
-  when Mal::Vector
-    (seq + args[1..-1]).to_mal(Mal::Vector)
+  when Crisp::List
+    (args[1..-1].reverse + seq).to_crisp_value
+  when Crisp::Vector
+    (seq + args[1..-1]).to_crisp_value(Crisp::Vector)
   else
     eval_error "1st argument of conj must be list or vector"
   end
@@ -344,11 +344,11 @@ end
 # Note:
 # Simply using ->self.some_func doesn't work
 macro func(name)
-  -> (args : Array(Mal::Type)) { Mal::Type.new self.{{name.id}}(args) }
+  -> (args : Array(Crisp::Type)) { Crisp::Type.new self.{{name.id}}(args) }
 end
 
 macro rel_op(op)
--> (args : Array(Mal::Type)) { Mal::Type.new (args[0] {{op.id}} args[1]) }
+-> (args : Array(Crisp::Type)) { Crisp::Type.new (args[0] {{op.id}} args[1]) }
 end
 
 NS = {
@@ -376,7 +376,7 @@ NS = {
   "nth"         => func(:nth)
   "first"       => func(:first)
   "rest"        => func(:rest)
-  "throw"       => -> (args : Array(Mal::Type)) { raise Mal::RuntimeException.new args[0] }
+  "throw"       => -> (args : Array(Crisp::Type)) { raise Crisp::RuntimeException.new args[0] }
   "apply"       => func(:apply)
   "map"         => func(:map)
   "nil?"        => func(:nil?)
@@ -408,6 +408,6 @@ NS = {
   "swap!"       => func(:swap!)
   "conj"        => func(:conj)
   "time-ms"     => func(:time_ms)
-} of String => Mal::Func
+} of String => Crisp::Func
 
 end

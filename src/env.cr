@@ -1,17 +1,17 @@
 require "./types"
 require "./error"
 
-module Mal
+module Crisp
 
   class Env
     property data
 
     def initialize(@outer)
-      @data = {} of String => Mal::Type
+      @data = {} of String => Crisp::Type
     end
 
-    def initialize(@outer, binds, exprs : Array(Mal::Type))
-      @data = {} of String => Mal::Type
+    def initialize(@outer, binds, exprs : Array(Crisp::Type))
+      @data = {} of String => Crisp::Type
 
       eval_error "binds must be list or vector" unless binds.is_a? Array
 
@@ -19,15 +19,15 @@ module Mal
       # Array#zip() can't be used because overload resolution failed
       (0...binds.size).each do |idx|
         sym = binds[idx].unwrap
-        eval_error "bind name must be symbol" unless sym.is_a? Mal::Symbol
+        eval_error "bind name must be symbol" unless sym.is_a? Crisp::Symbol
 
         if sym.str == "&"
           eval_error "missing variable parameter name" if binds.size == idx
           next_param = binds[idx+1].unwrap
-          eval_error "bind name must be symbol" unless next_param.is_a? Mal::Symbol
-          var_args = Mal::List.new
+          eval_error "bind name must be symbol" unless next_param.is_a? Crisp::Symbol
+          var_args = Crisp::List.new
           exprs[idx..-1].each{|e| var_args << e} if idx < exprs.size
-          @data[next_param.str] = Mal::Type.new var_args
+          @data[next_param.str] = Crisp::Type.new var_args
           break
         end
 

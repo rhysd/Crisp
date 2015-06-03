@@ -1,6 +1,6 @@
 require "./printer"
 
-module Mal
+module Crisp
   class Symbol
     property :str
     def initialize(@str)
@@ -81,7 +81,7 @@ module Mal
 
     macro rel_op(*ops)
       {% for op in ops %}
-        def {{op.id}}(other : Mal::Type)
+        def {{op.id}}(other : Crisp::Type)
           l, r = @val, other.unwrap
             {% for t in [Int32, String] %}
               if l.is_a?({{t}}) && r.is_a?({{t}})
@@ -103,11 +103,11 @@ module Mal
 end
 
 macro gen_type(t, *args)
-  Mal::Type.new {{t.id}}.new({{*args}})
+  Crisp::Type.new {{t.id}}.new({{*args}})
 end
 
 class Array
-  def to_mal(t = Mal::List)
+  def to_crisp_value(t = Crisp::List)
     each_with_object(t.new){|e, l| l << e}
   end
 end

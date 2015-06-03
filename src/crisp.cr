@@ -1,5 +1,7 @@
 #! /usr/bin/env crystal run
 
+require "colorize"
+
 require "./readline"
 require "./reader"
 require "./printer"
@@ -12,33 +14,32 @@ require "./error"
 # Employed downcase names because Crystal prohibits uppercase names for methods
 
 def func_of(env, binds, body)
-  -> (args : Array(Mal::Type)) {
-    new_env = Mal::Env.new(env, binds, args)
+  -> (args : Array(Crisp::Type)) {
+    new_env = Crisp::Env.new(env, binds, args)
     eval(body, new_env)
-  } as Mal::Func
+  } as Crisp::Func
 end
 
 def eval_ast(ast, env)
-  return ast.map{|n| eval(n, env) as Mal::Type} if ast.is_a? Mal::List
+  return ast.map{|n| eval(n, env) as Crisp::Type} if ast.is_a? Array
 
   val = ast.unwrap
 
-  Mal::Type.new case val
-  when Mal::Symbol
+  Crisp::Type.new case val
+  when Crisp::Symbol
     if e = env.get(val.str)
       e
     else
       eval_error "'#{val.str}' not found"
     end
-  when Mal::List
-    val.each_with_object(Mal::List.new){|n, l| l << eval(n, env)}
-  when Mal::Vector
-    val.each_with_object(Mal::Vector.new){|n, l| l << eval(n, env)}
-  when Array(Mal::Type)
-    val.map{|n| eval(n, env)}
-  when Mal::HashMap
-    val.each{|k, v| val[k] = eval(v, env)}
-    val
+  when Crisp::List
+    val.each_with_object(Crisp::List.new){|n, l| l << eval(n, env)}
+  when Crisp::Vector
+    val.each_with_object(Crisp::Vector.new){|n, l| l << eval(n, env)}
+  when Crisp::HashMap
+    new_map = Crisp::HashMap.new
+    val.each{|k, v| new_map[k] = eval(v, env)}
+    new_map
   else
     val
   end
@@ -56,8 +57,8 @@ def quasiquote(ast)
   list = ast.unwrap
 
   unless pair?(list)
-    return Mal::Type.new(
-      Mal::List.new << gen_type(Mal::Symbol, "quote") << ast
+    return Crisp::Type.new(
+      Crisp::List.new << gen_type(Crisp::Symbol, "quote") << ast
     )
   end
 
@@ -65,28 +66,29 @@ def quasiquote(ast)
 
   case
   # ("unquote" ...)
-  when head.is_a?(Mal::Symbol) && head.str == "unquote"
+  when head.is_a?(Crisp::Symbol) && head.str == "unquote"
     list[1]
   # (("splice-unquote" ...) ...)
-  when pair?(head) && (arg0 = head.first.unwrap).is_a?(Mal::Symbol) && arg0.str == "splice-unquote"
-    tail = Mal::Type.new list[1..-1].to_mal
-    Mal::Type.new(
-      Mal::List.new << gen_type(Mal::Symbol, "concat") << head[1] << quasiquote(tail)
+  when pair?(head) && (arg0 = head.first.unwrap).is_a?(Crisp::Symbol) && arg0.str == "splice-unquote"
+    tail = Crisp::Type.new list[1..-1].to_crisp_value
+    Crisp::Type.new(
+      Crisp::List.new << gen_type(Crisp::Symbol, "concat") << head[1] << quasiquote(tail)
     )
   else
-    tail = Mal::Type.new list[1..-1].to_mal
-    Mal::Type.new(
-      Mal::List.new << gen_type(Mal::Symbol, "cons") << quasiquote(list.first) << quasiquote(tail)
+    tail = Crisp::Type.new list[1..-1].to_crisp_value
+    Crisp::Type.new(
+      Crisp::List.new << gen_type(Crisp::Symbol, "cons") << quasiquote(list.first) << quasiquote(tail)
     )
   end
 end
 
 def macro_call?(ast, env)
   list = ast.unwrap
-  return false unless list.is_a? Mal::List
+  return false unless list.is_a? Crisp::List
+  return false if list.empty?
 
   sym = list.first.unwrap
-  return false unless sym.is_a? Mal::Symbol
+  return false unless sym.is_a? Crisp::Symbol
 
   func = env.find(sym.str).try(&.data[sym.str])
   return false unless func && func.macro?
@@ -98,14 +100,14 @@ def macroexpand(ast, env)
   while macro_call?(ast, env)
 
     # Already checked in macro_call?
-    list = ast.unwrap as Mal::List
-    func_sym = list[0].unwrap as Mal::Symbol
+    list = ast.unwrap as Crisp::List
+    func_sym = list[0].unwrap as Crisp::Symbol
     func = env.get(func_sym.str).unwrap
 
     case func
-    when Mal::Func
+    when Crisp::Func
       ast = func.call(list[1..-1])
-    when Mal::Closure
+    when Crisp::Closure
       ast = func.fn.call(list[1..-1])
     else
       eval_error "macro '#{func_sym.str}' must be function: #{ast}"
@@ -117,41 +119,46 @@ end
 
 macro invoke_list(l, env)
   f = eval({{l}}.first, {{env}}).unwrap
-  args = eval_ast({{l}}[1..-1].to_mal, {{env}})
+  args = eval_ast({{l}}[1..-1], {{env}}) as Array
+
   case f
-  when Mal::Closure
+  when Crisp::Closure
     ast = f.ast
-    {{env}} = Mal::Env.new(f.env, f.params, args)
+    {{env}} = Crisp::Env.new(f.env, f.params, args)
     next # TCO
-  when Mal::Func
+  when Crisp::Func
     return f.call args
   else
     eval_error "expected function as the first argument: #{f}"
   end
 end
 
+def debug(ast)
+  puts print(ast).colorize.red
+end
+
 def eval(ast, env)
   # 'next' in 'do...end' has a bug in crystal 0.7.1
   # https://github.com/manastech/crystal/issues/659
   while true
-    return eval_ast(ast, env) unless ast.unwrap.is_a? Mal::List
+    return eval_ast(ast, env) unless ast.unwrap.is_a? Crisp::List
 
     ast = macroexpand(ast, env)
 
     list = ast.unwrap
 
-    return ast unless list.is_a? Mal::List
+    return ast unless list.is_a? Crisp::List
     return ast if list.empty?
 
     head = list.first.unwrap
 
-    return invoke_list(list, env) unless head.is_a? Mal::Symbol
+    return invoke_list(list, env) unless head.is_a? Crisp::Symbol
 
-    return Mal::Type.new case head.str
+    return Crisp::Type.new case head.str
       when "def!"
         eval_error "wrong number of argument for 'def!'" unless list.size == 3
         a1 = list[1].unwrap
-        eval_error "1st argument of 'def!' must be symbol: #{a1}" unless a1.is_a? Mal::Symbol
+        eval_error "1st argument of 'def!' must be symbol: #{a1}" unless a1.is_a? Crisp::Symbol
         env.set(a1.str, eval(list[2], env))
       when "let*"
         eval_error "wrong number of argument for 'def!'" unless list.size == 3
@@ -160,11 +167,11 @@ def eval(ast, env)
         eval_error "1st argument of 'let*' must be list or vector" unless bindings.is_a? Array
         eval_error "size of binding list must be even" unless bindings.size.even?
 
-        new_env = Mal::Env.new env
+        new_env = Crisp::Env.new env
         bindings.each_slice(2) do |binding|
           key, value = binding
           name = key.unwrap
-          eval_error "name of binding must be specified as symbol #{name}" unless name.is_a? Mal::Symbol
+          eval_error "name of binding must be specified as symbol #{name}" unless name.is_a? Crisp::Symbol
           new_env.set(name.str, eval(value, new_env))
         end
 
@@ -172,16 +179,16 @@ def eval(ast, env)
         next # TCO
       when "do"
         if list.empty?
-          ast = Mal::Type.new nil
+          ast = Crisp::Type.new nil
           next
         end
 
-        eval_ast(list[1..-2].to_mal, env)
+        eval_ast(list[1..-2].to_crisp_value, env)
         ast = list.last
         next # TCO
       when "if"
         ast = unless eval(list[1], env).unwrap
-          list.size >= 4 ? list[3] : Mal::Type.new(nil)
+          list.size >= 4 ? list[3] : Crisp::Type.new(nil)
         else
           list[2]
         end
@@ -191,7 +198,7 @@ def eval(ast, env)
         unless params.is_a? Array
           eval_error "'fn*' parameters must be list or vector: #{params}"
         end
-        Mal::Closure.new(list[2], params, env, func_of(env, params, list[2]))
+        Crisp::Closure.new(list[2], params, env, func_of(env, params, list[2]))
       when "quote"
         list[1]
       when "quasiquote"
@@ -200,25 +207,25 @@ def eval(ast, env)
       when "defmacro!"
         eval_error "wrong number of argument for 'defmacro!'" unless list.size == 3
         a1 = list[1].unwrap
-        eval_error "1st argument of 'defmacro!' must be symbol: #{a1}" unless a1.is_a? Mal::Symbol
+        eval_error "1st argument of 'defmacro!' must be symbol: #{a1}" unless a1.is_a? Crisp::Symbol
         env.set(a1.str, eval(list[2], env).tap{|n| n.is_macro = true})
       when "macroexpand"
         macroexpand(list[1], env)
       when "try*"
         catch_list = list[2].unwrap
-        return eval(list[1], env) unless catch_list.is_a? Mal::List
+        return eval(list[1], env) unless catch_list.is_a? Crisp::List
 
         catch_head = catch_list.first.unwrap
-        return eval(list[1], env) unless catch_head.is_a? Mal::Symbol
+        return eval(list[1], env) unless catch_head.is_a? Crisp::Symbol
         return eval(list[1], env) unless catch_head.str == "catch*"
 
         begin
           eval(list[1], env)
-        rescue e : Mal::RuntimeException
-          new_env = Mal::Env.new(env, [catch_list[1]], [e.thrown])
+        rescue e : Crisp::RuntimeException
+          new_env = Crisp::Env.new(env, [catch_list[1]], [e.thrown])
           eval(catch_list[2], new_env)
         rescue e
-          new_env = Mal::Env.new(env, [catch_list[1]], [Mal::Type.new e.message])
+          new_env = Crisp::Env.new(env, [catch_list[1]], [Crisp::Type.new e.message])
           eval(catch_list[2], new_env)
         end
       else
@@ -235,21 +242,22 @@ def rep(str)
   print(eval(read(str), $repl_env))
 end
 
-$repl_env = Mal::Env.new nil
-Mal::NS.each{|k,v| $repl_env.set(k, Mal::Type.new(v))}
-$repl_env.set("eval", Mal::Type.new -> (args: Array(Mal::Type)){ eval(args[0], $repl_env) })
+$repl_env = Crisp::Env.new nil
+Crisp::NS.each{|k,v| $repl_env.set(k, Crisp::Type.new(v))}
+$repl_env.set("eval", Crisp::Type.new -> (args: Array(Crisp::Type)){ eval(args[0], $repl_env) })
 rep "(def! not (fn* (a) (if a false true)))"
 rep "(def! load-file (fn* (f) (eval (read-string (str \"(do \" (slurp f) \")\")))))"
 rep "(defmacro! cond (fn* (& xs) (if (> (count xs) 0) (list 'if (first xs) (if (> (count xs) 1) (nth xs 1) (throw \"odd number of forms to cond\")) (cons 'cond (rest (rest xs)))))))"
 rep "(defmacro! or (fn* (& xs) (if (empty? xs) nil (if (= 1 (count xs)) (first xs) `(let* (or_FIXME ~(first xs)) (if or_FIXME or_FIXME (or ~@(rest xs))))))))"
+rep("(def! *host-language* \"crystal\")")
 
-$argv = Mal::List.new
-$repl_env.set("*ARGV*", Mal::Type.new $argv)
+$argv = Crisp::List.new
+$repl_env.set("*ARGV*", Crisp::Type.new $argv)
 
 unless ARGV.empty?
   if ARGV.size > 1
     ARGV[1..-1].each do |a|
-      $argv << Mal::Type.new(a)
+      $argv << Crisp::Type.new(a)
     end
   end
 
@@ -261,7 +269,7 @@ unless ARGV.empty?
   exit
 end
 
-while line = my_readline("user> ")
+while line = my_readline("Crisp> ")
   begin
     puts rep(line)
   rescue e
