@@ -32,12 +32,12 @@ module Crisp
 
     def read_sequence(init, open, close)
       token = self.next
-      parse_error "expected '#{open}', got EOF" unless token
-      parse_error "expected '#{open}', got #{token}" unless  token[0] == open
+      Crisp.parse_error "expected '#{open}', got EOF" unless token
+      Crisp.parse_error "expected '#{open}', got #{token}" unless  token[0] == open
 
       loop do
         token = peek
-        parse_error "expected '#{close}', got EOF" unless token
+        Crisp.parse_error "expected '#{close}', got EOF" unless token
         break if token[0] == close
 
         init << read_form
@@ -59,7 +59,7 @@ module Crisp
     def read_hashmap
       types = read_sequence([] of Crisp::Type, '{', '}')
 
-      parse_error "odd number of elements for hash-map: #{types.size}" if types.size.odd?
+      Crisp.parse_error "odd number of elements for hash-map: #{types.size}" if types.size.odd?
       map = Crisp::HashMap.new
 
       types.each_slice(2) do |kv|
@@ -68,7 +68,7 @@ module Crisp
         when String
           map[k] = v
         else
-          parse_error("key of hash-map must be string or keyword")
+          Crisp.parse_error("key of hash-map must be string or keyword")
         end
       end
 
@@ -77,7 +77,7 @@ module Crisp
 
     def read_atom
       token = self.next
-      parse_error "expected Atom but got EOF" unless token
+      Crisp.parse_error "expected Atom but got EOF" unless token
 
       Crisp::Type.new case
       when token =~ /^-?\d+$/ then token.to_i
@@ -97,16 +97,16 @@ module Crisp
     def read_form
       token = peek
 
-      parse_error "unexpected EOF" unless token
-      parse_error "unexpected comment" if token[0] == ';'
+      Crisp.parse_error "unexpected EOF" unless token
+      Crisp.parse_error "unexpected comment" if token[0] == ';'
 
       Crisp::Type.new case token
       when "("  then read_list
-      when ")"  then parse_error "unexpected ')'"
+      when ")"  then Crisp.parse_error "unexpected ')'"
       when "["  then read_vector
-      when "]"  then parse_error "unexpected ']'"
+      when "]"  then Crisp.parse_error "unexpected ']'"
       when "{"  then read_hashmap
-      when "}"  then parse_error "unexpected '}'"
+      when "}"  then Crisp.parse_error "unexpected '}'"
       when "'"  then self.next; list_of("quote")
       when "`"  then self.next; list_of("quasiquote")
       when "~"  then self.next; list_of("unquote")

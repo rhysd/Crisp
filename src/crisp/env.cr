@@ -13,18 +13,18 @@ module Crisp
     def initialize(@outer, binds, exprs : Array(Crisp::Type))
       @data = {} of String => Crisp::Type
 
-      eval_error "binds must be list or vector" unless binds.is_a? Array
+      Crisp.eval_error "binds must be list or vector" unless binds.is_a? Array
 
       # Note:
       # Array#zip() can't be used because overload resolution failed
       (0...binds.size).each do |idx|
         sym = binds[idx].unwrap
-        eval_error "bind name must be symbol" unless sym.is_a? Crisp::Symbol
+        Crisp.eval_error "bind name must be symbol" unless sym.is_a? Crisp::Symbol
 
         if sym.str == "&"
-          eval_error "missing variable parameter name" if binds.size == idx
+          Crisp.eval_error "missing variable parameter name" if binds.size == idx
           next_param = binds[idx+1].unwrap
-          eval_error "bind name must be symbol" unless next_param.is_a? Crisp::Symbol
+          Crisp.eval_error "bind name must be symbol" unless next_param.is_a? Crisp::Symbol
           var_args = Crisp::List.new
           exprs[idx..-1].each{|e| var_args << e} if idx < exprs.size
           @data[next_param.str] = Crisp::Type.new var_args
@@ -59,7 +59,7 @@ module Crisp
 
     def get(key)
       e = find key
-      eval_error "'#{key}' not found" unless e
+      Crisp.eval_error "'#{key}' not found" unless e
       e.data[key]
     end
   end
