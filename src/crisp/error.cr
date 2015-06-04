@@ -1,4 +1,6 @@
 module Crisp
+  extend self
+
   class ParseException < Exception
   end
 

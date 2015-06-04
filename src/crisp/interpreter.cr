@@ -14,7 +14,7 @@ require "./error"
 module Crisp
 
   class Interpreter
-    def initialize(args)
+    def initialize(args = nil)
       @env = Crisp::Env.new
 
       Crisp::NameSpace.each{|k,v| @curent_env.set(k, Crisp::Type.new(v))}

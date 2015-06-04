@@ -43,7 +43,7 @@ module Crisp
   end
 
   def pr_str(args)
-    args.map{|a| Priter.new.print(a)}.join(" ")
+    args.map{|a| Printer.new.print(a)}.join(" ")
   end
 
   def str(args)
