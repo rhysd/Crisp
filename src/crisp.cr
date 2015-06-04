@@ -1,5 +1,3 @@
-#! /usr/bin/env crystal run
-
 require "colorize"
 require "readline"
 
@@ -244,41 +242,62 @@ module Crisp
   def rep(str)
     print(eval(read(str), $repl_env))
   end
-end
 
-$repl_env = Crisp::Env.new nil
-Crisp::NS.each{|k,v| $repl_env.set(k, Crisp::Type.new(v))}
-$repl_env.set("eval", Crisp::Type.new -> (args: Array(Crisp::Type)){ Crisp.eval(args[0], $repl_env) })
-Crisp.rep "(def! not (fn* (a) (if a false true)))"
-Crisp.rep "(def! load-file (fn* (f) (eval (read-string (str \"(do \" (slurp f) \")\")))))"
-Crisp.rep "(defmacro! cond (fn* (& xs) (if (> (count xs) 0) (list 'if (first xs) (if (> (count xs) 1) (nth xs 1) (throw \"odd number of forms to cond\")) (cons 'cond (rest (rest xs)))))))"
-Crisp.rep "(defmacro! or (fn* (& xs) (if (empty? xs) nil (if (= 1 (count xs)) (first xs) `(let* (or_FIXME ~(first xs)) (if or_FIXME or_FIXME (or ~@(rest xs))))))))"
-Crisp.rep("(def! *host-language* \"crystal\")")
+  class ProgramState
+    def rep(str)
+      print(eval(read(str), @env))
+    end
 
-$argv = Crisp::List.new
-$repl_env.set("*ARGV*", Crisp::Type.new $argv)
+    def initialize(args)
+      @env = Crisp::Env.new nil
 
-unless ARGV.empty?
-  if ARGV.size > 1
-    ARGV[1..-1].each do |a|
-      $argv << Crisp::Type.new(a)
+      Crisp::NameSpace.each{|k,v| @curent_env.set(k, Crisp::Type.new(v))}
+
+      @env.set("eval", Crisp::Type.new -> (args: Array(Crisp::Type)){ Crisp.eval(args[0], @env) })
+
+      rep "(def! not (fn* (a) (if a false true)))"
+      rep "(def! load-file (fn* (f) (eval (read-string (str \"(do \" (slurp f) \")\")))))"
+      rep "(defmacro! cond (fn* (& xs) (if (> (count xs) 0) (list 'if (first xs) (if (> (count xs) 1) (nth xs 1) (throw \"odd number of forms to cond\")) (cons 'cond (rest (rest xs)))))))"
+      rep "(defmacro! or (fn* (& xs) (if (empty? xs) nil (if (= 1 (count xs)) (first xs) `(let* (or_FIXME ~(first xs)) (if or_FIXME or_FIXME (or ~@(rest xs))))))))"
+      rep "(def! *host-language* \"crystal\")"
+
+      argv = Crisp::List.new
+
+      if args
+        args.each do |a|
+          argv << Crisp::Type.new a
+        end
+      end
+
+      @env.set("*ARGV*", Crisp::Type.new argv)
     end
   end
 
-  begin
-    Crisp.rep "(load-file \"#{ARGV[0]}\")"
-  rescue e
-    STDERR.puts e
-    exit 1
-  end
+  class Interpreter
+    def initialize(args)
+      @state = ProgramState.new args
+    end
 
-  exit
+    def run(filename = nil)
+      if filename
+        begin
+          Crisp.rep "(load-file \"#{filename}\")"
+        rescue e
+          STDERR.puts e
+          exit 1
+        end
+
+        exit
+      end
+
+      while line = Readline.readline("Crisp> ", true)
+        begin
+          puts @state.rep(line)
+        rescue e
+          STDERR.puts e
+        end
+      end
+    end
+  end
 end
 
-while line = Readline.readline("Crisp> ", true)
-  begin
-    puts Crisp.rep(line)
-  rescue e
-    STDERR.puts e
-  end
-end

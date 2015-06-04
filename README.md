@@ -24,7 +24,7 @@ This project is a toy box for my dynamic language ideas.
 ## Installation
 
 1. Install `crystal` command
-2. `$ crystal run /path/to/Crisp/src/crisp.cr`
+2. `$ crystal run /path/to/Crisp/src/main.cr`
 
 ## Development Environment
 
