@@ -100,10 +100,10 @@ module Crisp
   end
 
   alias Func = Type::Func
-end
 
-macro gen_type(t, *args)
-  Crisp::Type.new {{t.id}}.new({{*args}})
+  macro gen_type(t, *args)
+    Crisp::Type.new {{t.id}}.new({{*args}})
+  end
 end
 
 class Array

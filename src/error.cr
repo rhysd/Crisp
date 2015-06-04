@@ -11,12 +11,12 @@ module Crisp
       super()
     end
   end
-end
 
-def eval_error(msg)
-  raise Crisp::EvalException.new msg
-end
+  def self.eval_error(msg)
+    raise Crisp::EvalException.new msg
+  end
 
-def parse_error(msg)
-  raise Crisp::ParseException.new msg
+  def self.parse_error(msg)
+    raise Crisp::ParseException.new msg
+  end
 end
