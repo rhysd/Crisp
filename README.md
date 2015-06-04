@@ -13,8 +13,8 @@ This project is a toy box for my dynamic language ideas.
 - __Refactorings__
   - [ ] Make `is_a?` guards more elegant
   - [ ] Import test cases from Mal
-  - [ ] Add CI
-  - [ ] More OOP (`evaluator`, remove global variable, move states into object)
+  - [x] Add CI
+  - [x] More OOP (`evaluator`, remove global variable, move states into object)
   - [x] Use standard `readline` implementation
   - [ ] Better lexer and parser
   - [ ] Add examples
@@ -25,8 +25,8 @@ This project is a toy box for my dynamic language ideas.
 
 ## Installation
 
-1. Install `crystal` command
-2. `$ crystal run /path/to/Crisp/src/main.cr`
+1. Install `crystal` command ([instruction](http://crystal-lang.org/docs/installation/index.html))
+2. `$ crystal run /path/to/Crisp/crisp.cr`
 
 ## Development Environment
 
