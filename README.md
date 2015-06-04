@@ -1,6 +1,8 @@
 Crisp
 =====
 
+[![Build Status](https://travis-ci.org/rhysd/Crisp.svg)](https://travis-ci.org/rhysd/Crisp)
+
 Crisp is one of Lisp dialect which is based on [mal](https://github.com/kanaka/mal) and implemented with [Crystal](https://github.com/manastech/crystal).
 This project is a toy box for my dynamic language ideas.
 
