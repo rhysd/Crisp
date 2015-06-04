@@ -6,7 +6,7 @@ module Crisp
   class Env
     property data
 
-    def initialize(@outer)
+    def initialize(@outer = nil)
       @data = {} of String => Crisp::Type
     end
 
@@ -50,8 +50,7 @@ module Crisp
     def find(key)
       return self if @data.has_key? key
 
-      o = @outer
-      if o
+      if o = @outer
         o.find key
       else
         nil

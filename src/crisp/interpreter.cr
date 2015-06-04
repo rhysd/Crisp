@@ -15,16 +15,16 @@ module Crisp
 
   class Interpreter
     def initialize(args)
-      @env = Crisp::Env.new nil
+      @env = Crisp::Env.new
 
       Crisp::NameSpace.each{|k,v| @curent_env.set(k, Crisp::Type.new(v))}
       @env.set("eval", Crisp::Type.new -> (args: Array(Crisp::Type)){ eval(args[0], @env) })
 
-      rep "(def! not (fn* (a) (if a false true)))"
-      rep "(def! load-file (fn* (f) (eval (read-string (str \"(do \" (slurp f) \")\")))))"
-      rep "(defmacro! cond (fn* (& xs) (if (> (count xs) 0) (list 'if (first xs) (if (> (count xs) 1) (nth xs 1) (throw \"odd number of forms to cond\")) (cons 'cond (rest (rest xs)))))))"
-      rep "(defmacro! or (fn* (& xs) (if (empty? xs) nil (if (= 1 (count xs)) (first xs) `(let* (or_FIXME ~(first xs)) (if or_FIXME or_FIXME (or ~@(rest xs))))))))"
-      rep "(def! *host-language* \"crystal\")"
+      eval_string "(def! not (fn* (a) (if a false true)))"
+      eval_string "(def! load-file (fn* (f) (eval (read-string (str \"(do \" (slurp f) \")\")))))"
+      eval_string "(defmacro! cond (fn* (& xs) (if (> (count xs) 0) (list 'if (first xs) (if (> (count xs) 1) (nth xs 1) (throw \"odd number of forms to cond\")) (cons 'cond (rest (rest xs)))))))"
+      eval_string "(defmacro! or (fn* (& xs) (if (empty? xs) nil (if (= 1 (count xs)) (first xs) `(let* (or_FIXME ~(first xs)) (if or_FIXME or_FIXME (or ~@(rest xs))))))))"
+      eval_string "(def! *host-language* \"crystal\")"
 
       argv = Crisp::List.new
 
@@ -35,6 +35,8 @@ module Crisp
       end
 
       @env.set("*ARGV*", Crisp::Type.new argv)
+
+      @printer = Printer.new
     end
 
     def func_of(env, binds, body)
@@ -259,22 +261,22 @@ module Crisp
     end
 
     def print(result)
-        pr_str(result, true)
+        @printer.print(result)
     end
 
-    private def rep(str)
+    def eval_string(str)
       print(eval(read(str), @env))
     end
 
     def run(filename = nil)
       if filename
-        rep "(load-file \"#{filename}\")"
+        eval_string "(load-file \"#{filename}\")"
         return
       end
 
       while line = Readline.readline("Crisp> ", true)
         begin
-          puts rep(line)
+          puts eval_string(line)
         rescue e
           STDERR.puts e
         end

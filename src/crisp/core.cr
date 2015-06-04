@@ -42,21 +42,21 @@ module Crisp
     end
   end
 
-  def pr_str_(args)
-    args.map{|a| pr_str(a)}.join(" ")
+  def pr_str(args)
+    args.map{|a| Priter.new.print(a)}.join(" ")
   end
 
   def str(args)
-    args.map{|a| pr_str(a, false)}.join
+    args.map{|a| Printer.new(false).print(a)}.join
   end
 
   def prn(args)
-    puts self.pr_str_(args)
+    puts self.pr_str(args)
     nil
   end
 
   def println(args)
-    puts args.map{|a| pr_str(a, false)}.join(" ")
+    puts args.map{|a| Printer.new(false).print(a)}.join(" ")
     nil
   end
 
@@ -366,7 +366,7 @@ module Crisp
     ">"           => rel_op(:>)
     "<="          => rel_op(:<=)
     ">="          => rel_op(:>=)
-    "pr-str"      => func(:pr_str_)
+    "pr-str"      => func(:pr_str)
     "str"         => func(:str)
     "prn"         => func(:prn)
     "println"     => func(:println)

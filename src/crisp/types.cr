@@ -65,7 +65,7 @@ module Crisp
     end
 
     def to_s
-      pr_str(self)
+      Printer.new.print(self)
     end
 
     def dup
