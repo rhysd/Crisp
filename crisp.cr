@@ -4,7 +4,7 @@ if ARGV.empty?
   begin
     Crisp::Interpreter.new.run
   rescue e
-    STDERR.puts e
+    puts e
     exit 1
   end
 else

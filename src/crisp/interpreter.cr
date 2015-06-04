@@ -15,9 +15,10 @@ module Crisp
 
   class Interpreter
     def initialize(args = nil)
+      @printer = Printer.new
       @env = Crisp::Env.new
 
-      Crisp::NameSpace.each{|k,v| @curent_env.set(k, Crisp::Type.new(v))}
+      Crisp::NameSpace.each{|k,v| @env.set(k, Crisp::Type.new(v))}
       @env.set("eval", Crisp::Type.new -> (args: Array(Crisp::Type)){ eval(args[0], @env) })
 
       eval_string "(def! not (fn* (a) (if a false true)))"
@@ -35,8 +36,6 @@ module Crisp
       end
 
       @env.set("*ARGV*", Crisp::Type.new argv)
-
-      @printer = Printer.new
     end
 
     def func_of(env, binds, body)
@@ -72,7 +71,7 @@ module Crisp
     end
 
     def read(str)
-      read_str str
+      Crisp.read_str str
     end
 
     macro pair?(list)
@@ -278,7 +277,7 @@ module Crisp
         begin
           puts eval_string(line)
         rescue e
-          STDERR.puts e
+          puts e.message
         end
       end
     end

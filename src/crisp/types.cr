@@ -1,6 +1,8 @@
 require "./printer"
 
 module Crisp
+  extend self
+
   class Symbol
     property :str
     def initialize(@str)
@@ -100,10 +102,10 @@ module Crisp
   end
 
   alias Func = Type::Func
+end
 
-  macro gen_type(t, *args)
-    Crisp::Type.new {{t.id}}.new({{*args}})
-  end
+macro gen_type(t, *args)
+  Crisp::Type.new {{t.id}}.new({{*args}})
 end
 
 class Array
