@@ -6,3 +6,4 @@ install: |
   sudo apt-get install crystal
 script:
   - crystal build crisp.cr
+  - crystal spec

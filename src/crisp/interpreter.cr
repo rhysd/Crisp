@@ -46,7 +46,15 @@ module Crisp
     end
 
     def eval_string(str)
-      print(@evaluator.eval(read(str), @env))
+      @evaluator.eval(read(str), @env)
+    end
+
+    def eval(t : Crisp::Type)
+      @evaluator.eval(t, @env)
+    end
+
+    def eval(val)
+      @evaluator.eval(Crisp::Type.new val, @env)
     end
 
     def run(filename = nil)
@@ -57,7 +65,7 @@ module Crisp
 
       while line = Readline.readline("Crisp> ", true)
         begin
-          puts eval_string(line)
+          puts self.print(eval_string(line))
         rescue e
           puts e.message
         end
