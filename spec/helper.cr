@@ -1,5 +1,3 @@
 require "spec"
+require "../src/crisp"
 
-macro require_crisp(module)
-  require "../../src/crisp/{{module}}"
-end
