@@ -49,15 +49,15 @@ module Crisp
     end
 
     def read_list
-      Crisp::Type.new read_sequence(Crisp::List.new, '(', ')')
+      Crisp::Expr.new read_sequence(Crisp::List.new, '(', ')')
     end
 
     def read_vector
-      Crisp::Type.new read_sequence(Crisp::Vector.new, '[', ']')
+      Crisp::Expr.new read_sequence(Crisp::Vector.new, '[', ']')
     end
 
     def read_hashmap
-      types = read_sequence([] of Crisp::Type, '{', '}')
+      types = read_sequence([] of Crisp::Expr, '{', '}')
 
       Crisp.parse_error "odd number of elements for hash-map: #{types.size}" if types.size.odd?
       map = Crisp::HashMap.new
@@ -72,14 +72,14 @@ module Crisp
         end
       end
 
-      Crisp::Type.new map
+      Crisp::Expr.new map
     end
 
     def read_atom
       token = self.next
       Crisp.parse_error "expected Atom but got EOF" unless token
 
-      Crisp::Type.new case
+      Crisp::Expr.new case
       when token =~ /^-?\d+$/ then token.to_i
       when token == "true"    then true
       when token == "false"   then false
@@ -100,7 +100,7 @@ module Crisp
       Crisp.parse_error "unexpected EOF" unless token
       Crisp.parse_error "unexpected comment" if token[0] == ';'
 
-      Crisp::Type.new case token
+      Crisp::Expr.new case token
       when "("  then read_list
       when ")"  then Crisp.parse_error "unexpected ')'"
       when "["  then read_vector

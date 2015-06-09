@@ -10,10 +10,10 @@ module Crisp
   extend self
 
   macro calc_op(op)
-    -> (args : Array(Crisp::Type)) {
+    -> (args : Array(Crisp::Expr)) {
       x, y = args[0].unwrap, args[1].unwrap
       Crisp.eval_error "invalid arguments for binary operator {{op.id}}" unless x.is_a?(Int32) && y.is_a?(Int32)
-      Crisp::Type.new(x {{op.id}} y)
+      Crisp::Expr.new(x {{op.id}} y)
     }
   end
 
@@ -77,7 +77,7 @@ module Crisp
   end
 
   def cons(args)
-    head, tail = args[0] as Crisp::Type, args[1].unwrap
+    head, tail = args[0] as Crisp::Expr, args[1].unwrap
     Crisp.eval_error "2nd arg of cons must be list" unless tail.is_a? Array
     ([head] + tail).to_crisp_value
   end
@@ -245,7 +245,7 @@ module Crisp
     return nil unless a0.is_a? Crisp::HashMap
     Crisp.eval_error "2nd argument of get must be string" unless a1.is_a? String
 
-    # a0[a1]? isn't available because type ofa0[a1] is infered NoReturn
+    # a0[a1]? isn't available because type of a0[a1] is inferred NoReturn
     a0.has_key?(a1) ? a0[a1] : nil
   end
 
@@ -259,7 +259,7 @@ module Crisp
   def keys(args)
     head = args.first.unwrap
     Crisp.eval_error "1st argument of assoc must be hashmap" unless head.is_a? Crisp::HashMap
-    head.keys.each_with_object(Crisp::List.new){|e,l| l << Crisp::Type.new(e)}
+    head.keys.each_with_object(Crisp::List.new){|e,l| l << Crisp::Expr.new(e)}
   end
 
   def vals(args)
@@ -345,11 +345,11 @@ module Crisp
   # Note:
   # Simply using ->self.some_func doesn't work
   macro func(name)
-    -> (args : Array(Crisp::Type)) { Crisp::Type.new self.{{name.id}}(args) }
+    -> (args : Array(Crisp::Expr)) { Crisp::Expr.new self.{{name.id}}(args) }
   end
 
   macro rel_op(op)
-  -> (args : Array(Crisp::Type)) { Crisp::Type.new (args[0] {{op.id}} args[1]) }
+  -> (args : Array(Crisp::Expr)) { Crisp::Expr.new (args[0] {{op.id}} args[1]) }
   end
 
   NameSpace = {
@@ -377,7 +377,7 @@ module Crisp
     "nth"         => func(:nth)
     "first"       => func(:first)
     "rest"        => func(:rest)
-    "throw"       => -> (args : Array(Crisp::Type)) { raise Crisp::RuntimeException.new args[0] }
+    "throw"       => -> (args : Array(Crisp::Expr)) { raise Crisp::RuntimeException.new args[0] }
     "apply"       => func(:apply)
     "map"         => func(:map)
     "nil?"        => func(:nil?)

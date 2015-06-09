@@ -29,12 +29,12 @@ module Crisp
       when Crisp::Atom
         "(atom #{print(value.val)})"
       else
-        raise "invalid CrispType: #{value.to_s}"
+        raise "invalid CrispExpr: #{value.to_s}"
       end
     end
 
-    def print(t : Crisp::Type)
-      print(t.unwrap) + (t.macro? ? " (macro)" : "")
+    def print(e : Crisp::Expr)
+      print(e.unwrap) + (e.macro? ? " (macro)" : "")
     end
   end
 end

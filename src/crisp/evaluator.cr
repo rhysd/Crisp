@@ -12,18 +12,18 @@ module Crisp
 
   class Evaluator
     def func_of(env, binds, body)
-      -> (args : Array(Crisp::Type)) {
+      -> (args : Array(Crisp::Expr)) {
       new_env = Crisp::Env.new(env, binds, args)
       eval(body, new_env)
       } as Crisp::Func
     end
 
     def eval_ast(ast, env)
-      return ast.map{|n| eval(n, env) as Crisp::Type} if ast.is_a? Array
+      return ast.map{|n| eval(n, env) as Crisp::Expr} if ast.is_a? Array
 
       val = ast.unwrap
 
-      Crisp::Type.new case val
+      Crisp::Expr.new case val
       when Crisp::Symbol
         if e = env.get(val.str)
             e
@@ -51,7 +51,7 @@ module Crisp
       list = ast.unwrap
 
       unless pair?(list)
-      return Crisp::Type.new(
+      return Crisp::Expr.new(
         Crisp::List.new << gen_type(Crisp::Symbol, "quote") << ast
       )
       end
@@ -64,13 +64,13 @@ module Crisp
         list[1]
       # (("splice-unquote" ...) ...)
       when pair?(head) && (arg0 = head.first.unwrap).is_a?(Crisp::Symbol) && arg0.str == "splice-unquote"
-        tail = Crisp::Type.new list[1..-1].to_crisp_value
-        Crisp::Type.new(
+        tail = Crisp::Expr.new list[1..-1].to_crisp_value
+        Crisp::Expr.new(
           Crisp::List.new << gen_type(Crisp::Symbol, "concat") << head[1] << quasiquote(tail)
         )
       else
-        tail = Crisp::Type.new list[1..-1].to_crisp_value
-        Crisp::Type.new(
+        tail = Crisp::Expr.new list[1..-1].to_crisp_value
+        Crisp::Expr.new(
           Crisp::List.new << gen_type(Crisp::Symbol, "cons") << quasiquote(list.first) << quasiquote(tail)
         )
       end
@@ -148,7 +148,7 @@ module Crisp
 
         return invoke_list(list, env) unless head.is_a? Crisp::Symbol
 
-        return Crisp::Type.new case head.str
+        return Crisp::Expr.new case head.str
           when "def!"
             Crisp.eval_error "wrong number of argument for 'def!'" unless list.size == 3
             a1 = list[1].unwrap
@@ -173,7 +173,7 @@ module Crisp
             next # TCO
           when "do"
             if list.empty?
-              ast = Crisp::Type.new nil
+              ast = Crisp::Expr.new nil
               next
             end
 
@@ -182,7 +182,7 @@ module Crisp
             next # TCO
           when "if"
             ast = unless eval(list[1], env).unwrap
-              list.size >= 4 ? list[3] : Crisp::Type.new(nil)
+              list.size >= 4 ? list[3] : Crisp::Expr.new(nil)
             else
               list[2]
             end
@@ -219,7 +219,7 @@ module Crisp
               new_env = Crisp::Env.new(env, [catch_list[1]], [e.thrown])
               eval(catch_list[2], new_env)
             rescue e
-              new_env = Crisp::Env.new(env, [catch_list[1]], [Crisp::Type.new e.message])
+              new_env = Crisp::Env.new(env, [catch_list[1]], [Crisp::Expr.new e.message])
               eval(catch_list[2], new_env)
             end
           else

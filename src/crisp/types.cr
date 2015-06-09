@@ -13,13 +13,13 @@ module Crisp
     end
   end
 
-  class List < Array(Type)
+  class List < Array(Expr)
   end
 
-  class Vector < Array(Type)
+  class Vector < Array(Expr)
   end
 
-  class HashMap < Hash(String, Type)
+  class HashMap < Hash(String, Expr)
   end
 
   class Atom
@@ -38,21 +38,21 @@ module Crisp
     end
   end
 
-  class Type
-    alias Func = (Array(Type) -> Type)
-    alias ValueType = Nil | Bool | Int32 | String | Symbol | List | Vector | HashMap | Func | Closure | Atom
+  class Expr
+    alias Func = (Array(Expr) -> Expr)
+    alias ValueExpr = Nil | Bool | Int32 | String | Symbol | List | Vector | HashMap | Func | Closure | Atom
 
     is_macro :: Bool
-    meta :: Type
+    meta :: Expr
 
     property :is_macro, :meta
 
-    def initialize(@val : ValueType)
+    def initialize(@val : ValueExpr)
       @is_macro = false
       @meta = nil
     end
 
-    def initialize(other : Type)
+    def initialize(other : Expr)
       @val = other.unwrap
       @is_macro = other.is_macro
       @meta = other.meta
@@ -71,19 +71,19 @@ module Crisp
     end
 
     def dup
-      Type.new(@val).tap do |t|
+      Expr.new(@val).tap do |t|
         t.is_macro = @is_macro
         t.meta = @meta
       end
     end
 
-    def ==(other : Type)
+    def ==(other : Expr)
       @val == other.unwrap
     end
 
     macro rel_op(*ops)
       {% for op in ops %}
-        def {{op.id}}(other : Crisp::Type)
+        def {{op.id}}(other : Crisp::Expr)
           l, r = @val, other.unwrap
             {% for t in [Int32, String] %}
               if l.is_a?({{t}}) && r.is_a?({{t}})
@@ -101,11 +101,11 @@ module Crisp
     rel_op :<, :>, :<=, :>=
   end
 
-  alias Func = Type::Func
+  alias Func = Expr::Func
 end
 
 macro gen_type(t, *args)
-  Crisp::Type.new {{t.id}}.new({{*args}})
+  Crisp::Expr.new {{t.id}}.new({{*args}})
 end
 
 class Array

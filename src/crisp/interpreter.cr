@@ -17,8 +17,8 @@ module Crisp
       @evaluator = Evaluator.new
       @env = Crisp::Env.new
 
-      Crisp::NameSpace.each{|k,v| @env.set(k, Crisp::Type.new(v))}
-      @env.set("eval", Crisp::Type.new -> (args: Array(Crisp::Type)){ @evaluator.eval(args[0], @env) })
+      Crisp::NameSpace.each{|k,v| @env.set(k, Crisp::Expr.new(v))}
+      @env.set("eval", Crisp::Expr.new -> (args: Array(Crisp::Expr)){ @evaluator.eval(args[0], @env) })
 
       eval_string "(def! not (fn* (a) (if a false true)))"
       eval_string "(def! load-file (fn* (f) (eval (read-string (str \"(do \" (slurp f) \")\")))))"
@@ -30,11 +30,11 @@ module Crisp
 
       if args
         args.each do |a|
-          argv << Crisp::Type.new a
+          argv << Crisp::Expr.new a
         end
       end
 
-      @env.set("*ARGV*", Crisp::Type.new argv)
+      @env.set("*ARGV*", Crisp::Expr.new argv)
     end
 
     def read(str)
@@ -49,12 +49,12 @@ module Crisp
       @evaluator.eval(read(str), @env)
     end
 
-    def eval(t : Crisp::Type)
+    def eval(t : Crisp::Expr)
       @evaluator.eval(t, @env)
     end
 
     def eval(val)
-      @evaluator.eval(Crisp::Type.new val, @env)
+      @evaluator.eval(Crisp::Expr.new val, @env)
     end
 
     def run(filename = nil)

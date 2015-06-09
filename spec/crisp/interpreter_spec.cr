@@ -5,7 +5,7 @@ describe "Crisp::Interpreter" do
     it "takes arguments as string value" do
       i = Crisp::Interpreter.new %w(foo bar baz)
       result = i.eval_string("*ARGV*")
-      result.should be_a(Crisp::Type)
+      result.should be_a(Crisp::Expr)
       unwrapped = result.unwrap
       unwrapped.should be_a(Crisp::List)
       if unwrapped.is_a? Crisp::List
@@ -27,7 +27,7 @@ describe "Crisp::Interpreter" do
     it "evaluates string of Crisp expression" do
       i = Crisp::Interpreter.new
       result = i.eval_string "(+ 1 2)"
-      result.should be_a(Crisp::Type)
+      result.should be_a(Crisp::Expr)
       unwrapped = result.unwrap
       unwrapped.should be_a(Int32)
       unwrapped.should eq(3)

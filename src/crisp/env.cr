@@ -7,11 +7,11 @@ module Crisp
     property data
 
     def initialize(@outer = nil)
-      @data = {} of String => Crisp::Type
+      @data = {} of String => Crisp::Expr
     end
 
-    def initialize(@outer, binds, exprs : Array(Crisp::Type))
-      @data = {} of String => Crisp::Type
+    def initialize(@outer, binds, exprs : Array(Crisp::Expr))
+      @data = {} of String => Crisp::Expr
 
       Crisp.eval_error "binds must be list or vector" unless binds.is_a? Array
 
@@ -27,7 +27,7 @@ module Crisp
           Crisp.eval_error "bind name must be symbol" unless next_param.is_a? Crisp::Symbol
           var_args = Crisp::List.new
           exprs[idx..-1].each{|e| var_args << e} if idx < exprs.size
-          @data[next_param.str] = Crisp::Type.new var_args
+          @data[next_param.str] = Crisp::Expr.new var_args
           break
         end
 
