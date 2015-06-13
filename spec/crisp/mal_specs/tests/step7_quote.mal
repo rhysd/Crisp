@@ -1,0 +1,126 @@
+;; Testing cons function
+(cons 1 (list))
+;=>(1)
+(cons 1 (list 2))
+;=>(1 2)
+(cons 1 (list 2 3))
+;=>(1 2 3)
+(cons (list 1) (list 2 3))
+;=>((1) 2 3)
+
+;; Testing concat function
+(concat)
+;=>()
+(concat (list 1 2))
+;=>(1 2)
+(concat (list 1 2) (list 3 4))
+;=>(1 2 3 4)
+(concat (list 1 2) (list 3 4) (list 5 6))
+;=>(1 2 3 4 5 6)
+(concat (concat))
+;=>()
+
+
+;; Testing regular quote
+(quote 7)
+;=>7
+'7
+;=>7
+(quote (1 2 3))
+;=>(1 2 3)
+'(1 2 3)
+;=>(1 2 3)
+(quote (1 2 (3 4)))
+;=>(1 2 (3 4))
+'(1 2 (3 4))
+;=>(1 2 (3 4))
+
+
+;; Testing simple quasiquote
+(quasiquote 7)
+;=>7
+`7
+;=>7
+(quasiquote (1 2 3))
+;=>(1 2 3)
+`(1 2 3)
+;=>(1 2 3)
+(quasiquote (1 2 (3 4)))
+;=>(1 2 (3 4))
+`(1 2 (3 4))
+;=>(1 2 (3 4))
+
+
+;; Testing unquote
+`~7
+;=>7
+(def! a 8)
+;=>8
+`a
+;=>a
+`~a
+;=>8
+`(1 a 3)
+;=>(1 a 3)
+`(1 ~a 3)
+;=>(1 8 3)
+(def! b '(1 "b" "d"))
+;=>(1 "b" "d")
+`(1 b 3)
+;=>(1 b 3)
+`(1 ~b 3)
+;=>(1 (1 "b" "d") 3)
+
+
+;; Testing splice-unquote
+(def! c '(1 "b" "d"))
+;=>(1 "b" "d")
+`(1 c 3)
+;=>(1 c 3)
+`(1 ~@c 3)
+;=>(1 1 "b" "d" 3)
+
+
+;; Testing symbol equality
+(= 'abc 'abc)
+;=>true
+(= 'abc 'abcd)
+;=>false
+(= 'abc "abc")
+;=>false
+(= "abc" 'abc)
+;=>false
+
+;;;;; Test quine
+;;; TODO: needs expect line length fix
+;;;((fn* [q] (quasiquote ((unquote q) (quote (unquote q))))) (quote (fn* [q] (quasiquote ((unquote q) (quote (unquote q)))))))
+;;;=>((fn* [q] (quasiquote ((unquote q) (quote (unquote q))))) (quote (fn* [q] (quasiquote ((unquote q) (quote (unquote q)))))))
+
+;;
+;; -------- Optional Functionality --------
+
+;; Testing cons, concat, first, rest with vectors
+
+(cons [1] [2 3])
+;=>([1] 2 3)
+(cons 1 [2 3])
+;=>(1 2 3)
+(concat [1 2] (list 3 4) [5 6])
+;=>(1 2 3 4 5 6)
+
+;; Testing unquote with vectors
+(def! a 8)
+;=>8
+`[1 a 3]
+;=>(1 a 3)
+;;; TODO: fix this
+;;;;=>[1 a 3]
+
+;; Testing splice-unquote with vectors
+(def! c '(1 "b" "d"))
+;=>(1 "b" "d")
+`[1 ~@c 3]
+;=>(1 1 "b" "d" 3)
+;;; TODO: fix this
+;;;;=>[1 1 "b" "d" 3]
+
