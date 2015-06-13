@@ -1,7 +1,7 @@
 require "time"
 require "readline"
 
-require "./types"
+require "./expr"
 require "./error"
 require "./printer"
 require "./reader"

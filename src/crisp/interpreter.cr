@@ -3,7 +3,7 @@ require "readline"
 
 require "./reader"
 require "./printer"
-require "./types"
+require "./expr"
 require "./env"
 require "./core"
 require "./error"

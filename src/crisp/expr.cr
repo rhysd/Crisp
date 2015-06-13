@@ -40,14 +40,14 @@ module Crisp
 
   class Expr
     alias Func = (Array(Expr) -> Expr)
-    alias ValueExpr = Nil | Bool | Int32 | String | Symbol | List | Vector | HashMap | Func | Closure | Atom
+    alias Type = Nil | Bool | Int32 | String | Symbol | List | Vector | HashMap | Func | Closure | Atom
 
     is_macro :: Bool
     meta :: Expr
 
     property :is_macro, :meta
 
-    def initialize(@val : ValueExpr)
+    def initialize(@val : Type)
       @is_macro = false
       @meta = nil
     end

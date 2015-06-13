@@ -1,4 +1,4 @@
-require "./types"
+require "./expr"
 
 module Crisp
   class Printer
