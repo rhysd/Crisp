@@ -28,10 +28,14 @@ This project is a toy box for my dynamic language ideas.
 1. Install `crystal` command ([instruction](http://crystal-lang.org/docs/installation/index.html))
 2. `$ crystal run /path/to/Crisp/crisp.cr`
 
+## Examples
+
+Please see [mal test cases](https://github.com/rhysd/Crisp/tree/master/spec/crisp/mal_specs/tests) for now.
+
 ## Development Environment
 
 - OS X
-- Crystal 0.7.1, 0.7.2
+- Crystal 0.7.1 ~ 0.7.3
 
 ## License
 
