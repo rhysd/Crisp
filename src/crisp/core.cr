@@ -339,7 +339,7 @@ module Crisp
   end
 
   def time_ms(args)
-    (Time.now.to_i.to_i32) * 1000
+    Time.now.epoch_ms.to_i32
   end
 
   # Note:
