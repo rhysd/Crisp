@@ -2,7 +2,7 @@ class MalTestRunner
   def initialize(@test_file)
   end
 
-  private macro check_EOF
+  macro check_EOF
     return if l.is_a? Iterator::Stop
   end
 
