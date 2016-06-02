@@ -6,7 +6,7 @@ module Crisp
   class Env
     property data
 
-    def initialize(@outer = nil)
+    def initialize(@outer : Env? = nil)
       @data = {} of String => Crisp::Expr
     end
 

@@ -5,7 +5,7 @@ module Crisp
 
   class Symbol
     property :str
-    def initialize(@str)
+    def initialize(@str : String)
     end
 
     def ==(other : Symbol)
@@ -24,7 +24,7 @@ module Crisp
 
   class Atom
     property :val
-    def initialize(@val)
+    def initialize(@val : Expr)
     end
 
     def ==(rhs : Atom)
@@ -34,7 +34,7 @@ module Crisp
 
   class Closure
     property :ast, :params, :env, :fn
-    def initialize(@ast, @params, @env, @fn)
+    def initialize(@ast : Expr, @params : List | Vector, @env : Env, @fn : Func)
     end
   end
 
@@ -42,14 +42,11 @@ module Crisp
     alias Func = (Array(Expr) -> Expr)
     alias Type = Nil | Bool | Int32 | String | Symbol | List | Vector | HashMap | Func | Closure | Atom
 
-    is_macro :: Bool
-    meta :: Expr
-
     property :is_macro, :meta
 
     def initialize(@val : Type)
       @is_macro = false
-      @meta = nil
+      @meta = nil as Expr?
     end
 
     def initialize(other : Expr)

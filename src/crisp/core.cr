@@ -149,7 +149,7 @@ module Crisp
     end
   end
 
-  def nil?(args)
+  def nil_value?(args)
     args.first.unwrap.nil?
   end
 
@@ -380,7 +380,7 @@ module Crisp
     "throw"       => -> (args : Array(Crisp::Expr)) { raise Crisp::RuntimeException.new args[0] },
     "apply"       => func(:apply),
     "map"         => func(:map),
-    "nil?"        => func(:nil?),
+    "nil?"        => func(:nil_value?),
     "true?"       => func(:true?),
     "false?"      => func(:false?),
     "symbol?"     => func(:symbol?),

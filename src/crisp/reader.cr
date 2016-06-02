@@ -5,7 +5,7 @@ module Crisp
   extend self
 
   class Reader
-    def initialize(@tokens)
+    def initialize(@tokens : Array(String))
       @pos = 0
     end
 
