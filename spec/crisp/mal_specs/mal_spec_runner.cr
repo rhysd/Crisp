@@ -1,5 +1,5 @@
 class MalTestRunner
-  def initialize(@test_file)
+  def initialize(@test_file : String)
   end
 
   macro check_EOF
