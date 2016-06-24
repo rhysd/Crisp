@@ -26,7 +26,7 @@ This project is a toy box for my dynamic language ideas.
 ## Installation
 
 1. Install `crystal` command ([instruction](http://crystal-lang.org/docs/installation/index.html))
-2. `$ crystal run /path/to/Crisp/crisp.cr`
+2. `$ crystal run /path/to/Crisp/crisp.cr` or use `crystal compile` to create a binary.
 
 ## Examples
 
@@ -35,7 +35,7 @@ Please see [mal test cases](https://github.com/rhysd/Crisp/tree/master/spec/cris
 ## Development Environment
 
 - OS X
-- Crystal 0.7.1 ~ 0.7.3 or 0.7.7 ~ 0.11.0 or 0.17.4
+- Crystal 0.7.1 ~ 0.7.3 or 0.7.7 ~ 0.11.0 or 0.17.4 or 0.18.4
 
 ## License
 
