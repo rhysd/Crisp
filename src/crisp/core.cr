@@ -34,7 +34,7 @@ module Crisp
     a = args.first.unwrap
     case a
     when Array
-      a.size as Int32
+      a.size.as Int32
     when Nil
       0
     else
@@ -43,11 +43,11 @@ module Crisp
   end
 
   def pr_str(args)
-    args.map{|a| Printer.new.print(a)}.join(" ")
+    args.map { |a| Printer.new.print(a) }.join(" ")
   end
 
   def str(args)
-    args.map{|a| Printer.new(false).print(a)}.join
+    args.map { |a| Printer.new(false).print(a) }.join
   end
 
   def prn(args)
@@ -56,7 +56,7 @@ module Crisp
   end
 
   def println(args)
-    puts args.map{|a| Printer.new(false).print(a)}.join(" ")
+    puts args.map { |a| Printer.new(false).print(a) }.join(" ")
     nil
   end
 
@@ -77,7 +77,7 @@ module Crisp
   end
 
   def cons(args)
-    head, tail = args[0] as Crisp::Expr, args[1].unwrap
+    head, tail = args[0].as Crisp::Expr, args[1].unwrap
     Crisp.eval_error "2nd arg of cons must be list" unless tail.is_a? Array
     ([head] + tail).to_crisp_value
   end
@@ -86,7 +86,7 @@ module Crisp
     args.each_with_object(Crisp::List.new) do |arg, list|
       a = arg.unwrap
       Crisp.eval_error "arguments of concat must be list" unless a.is_a?(Array)
-      a.each{|e| list << e}
+      a.each { |e| list << e }
     end
   end
 
@@ -141,7 +141,7 @@ module Crisp
     f = case func
         when Crisp::Closure then func.fn
         when Crisp::Func    then func
-        else                   Crisp.eval_error "1st argument of map must be function"
+        else                     Crisp.eval_error "1st argument of map must be function"
         end
 
     list.each_with_object(Crisp::List.new) do |elem, mapped|
@@ -213,7 +213,7 @@ module Crisp
     Crisp.eval_error "assoc must take a list and even number of arguments" unless (args.size - 1).even?
 
     map = Crisp::HashMap.new
-    head.each{|k, v| map[k] = v}
+    head.each { |k, v| map[k] = v }
 
     args[1..-1].each_slice(2) do |kv|
       k = kv[0].unwrap
@@ -229,7 +229,7 @@ module Crisp
     Crisp.eval_error "1st argument of assoc must be hashmap" unless head.is_a? Crisp::HashMap
 
     map = Crisp::HashMap.new
-    head.each{|k,v| map[k] = v}
+    head.each { |k, v| map[k] = v }
 
     args[1..-1].each do |arg|
       key = arg.unwrap
@@ -259,7 +259,7 @@ module Crisp
   def keys(args)
     head = args.first.unwrap
     Crisp.eval_error "1st argument of assoc must be hashmap" unless head.is_a? Crisp::HashMap
-    head.keys.each_with_object(Crisp::List.new){|e,l| l << Crisp::Expr.new(e)}
+    head.keys.each_with_object(Crisp::List.new) { |e, l| l << Crisp::Expr.new(e) }
   end
 
   def vals(args)
@@ -377,7 +377,7 @@ module Crisp
     "nth"         => func(:nth),
     "first"       => func(:first),
     "rest"        => func(:rest),
-    "throw"       => -> (args : Array(Crisp::Expr)) { raise Crisp::RuntimeException.new args[0] },
+    "throw"       => ->(args : Array(Crisp::Expr)) { raise Crisp::RuntimeException.new args[0] },
     "apply"       => func(:apply),
     "map"         => func(:map),
     "nil?"        => func(:nil_value?),
@@ -410,5 +410,4 @@ module Crisp
     "conj"        => func(:conj),
     "time-ms"     => func(:time_ms),
   } of String => Crisp::Func
-
 end

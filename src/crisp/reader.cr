@@ -33,7 +33,7 @@ module Crisp
     def read_sequence(init, open, close)
       token = self.next
       Crisp.parse_error "expected '#{open}', got EOF" unless token
-      Crisp.parse_error "expected '#{open}', got #{token}" unless  token[0] == open
+      Crisp.parse_error "expected '#{open}', got #{token}" unless token[0] == open
 
       loop do
         token = peek
@@ -119,12 +119,11 @@ module Crisp
       else read_atom
       end
     end
-
   end
 
   def tokenize(str)
     regex = /[\s,]*(~@|[\[\]{}()'`~^@]|"(?:\\.|[^\\"])*"|;.*|[^\s\[\]{}('"`,;)]*)/
-    str.scan(regex).map{|m| m[1]}.reject(&.empty?)
+    str.scan(regex).map { |m| m[1] }.reject(&.empty?)
   end
 
   def read_str(str)
@@ -137,6 +136,4 @@ module Crisp
       end
     end
   end
-
 end
-

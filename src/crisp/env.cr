@@ -2,7 +2,6 @@ require "./expr"
 require "./error"
 
 module Crisp
-
   class Env
     property data
 
@@ -23,10 +22,10 @@ module Crisp
 
         if sym.str == "&"
           Crisp.eval_error "missing variable parameter name" if binds.size == idx
-          next_param = binds[idx+1].unwrap
+          next_param = binds[idx + 1].unwrap
           Crisp.eval_error "bind name must be symbol" unless next_param.is_a? Crisp::Symbol
           var_args = Crisp::List.new
-          exprs[idx..-1].each{|e| var_args << e} if idx < exprs.size
+          exprs[idx..-1].each { |e| var_args << e } if idx < exprs.size
           @data[next_param.str] = Crisp::Expr.new var_args
           break
         end
@@ -63,5 +62,4 @@ module Crisp
       e.data[key]
     end
   end
-
 end

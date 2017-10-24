@@ -35,7 +35,7 @@ Please see [mal test cases](https://github.com/rhysd/Crisp/tree/master/spec/cris
 ## Development Environment
 
 - OS X
-- Crystal 0.7.1 ~ 0.7.3 or 0.7.7 ~ 0.11.0 or 0.17.4 or 0.18.4
+- Crystal 0.23.1
 
 ## License
 

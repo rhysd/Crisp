@@ -9,6 +9,7 @@ module Crisp
 
   class RuntimeException < Exception
     getter :thrown
+
     def initialize(@thrown : Crisp::Expr)
       super()
     end

@@ -10,15 +10,14 @@ require "./error"
 require "./evaluator"
 
 module Crisp
-
   class Interpreter
     def initialize(args = nil)
       @printer = Printer.new
       @evaluator = Evaluator.new
       @env = Crisp::Env.new
 
-      Crisp::NameSpace.each{|k,v| @env.set(k, Crisp::Expr.new(v))}
-      @env.set("eval", Crisp::Expr.new -> (args: Array(Crisp::Expr)){ @evaluator.eval(args[0], @env) })
+      Crisp::NameSpace.each { |k, v| @env.set(k, Crisp::Expr.new(v)) }
+      @env.set("eval", Crisp::Expr.new ->(args : Array(Crisp::Expr)) { @evaluator.eval(args[0], @env) })
 
       eval_string "(def! not (fn* (a) (if a false true)))"
       eval_string "(def! load-file (fn* (f) (eval (read-string (str \"(do \" (slurp f) \")\")))))"
@@ -73,4 +72,3 @@ module Crisp
     end
   end
 end
-
