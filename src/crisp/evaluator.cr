@@ -15,11 +15,11 @@ module Crisp
       -> (args : Array(Crisp::Expr)) {
       new_env = Crisp::Env.new(env, binds, args)
       eval(body, new_env)
-      } as Crisp::Func
+      }.as Crisp::Func
     end
 
     def eval_ast(ast, env)
-      return ast.map{|n| eval(n, env) as Crisp::Expr} if ast.is_a? Array
+      return ast.map{|n| eval(n, env).as Crisp::Expr} if ast.is_a? Array
 
       val = ast.unwrap
 
@@ -94,8 +94,8 @@ module Crisp
       while macro_call?(ast, env)
 
         # Already checked in macro_call?
-        list = ast.unwrap as Crisp::List
-        func_sym = list[0].unwrap as Crisp::Symbol
+        list = ast.unwrap.as Crisp::List
+        func_sym = list[0].unwrap.as Crisp::Symbol
         func = env.get(func_sym.str).unwrap
 
         case func
@@ -113,7 +113,7 @@ module Crisp
 
     macro invoke_list(l, env)
       f = eval({{l}}.first, {{env}}).unwrap
-      args = eval_ast({{l}}[1..-1], {{env}}) as Array
+      args = eval_ast({{l}}[1..-1], {{env}}).as Array
 
       case f
       when Crisp::Closure

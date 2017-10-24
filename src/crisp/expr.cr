@@ -13,6 +13,8 @@ module Crisp
     end
   end
 
+  class Expr; end
+
   class List < Array(Expr)
   end
 
@@ -34,7 +36,7 @@ module Crisp
 
   class Closure
     property :ast, :params, :env, :fn
-    def initialize(@ast : Expr, @params : List | Vector, @env : Env, @fn : Func)
+    def initialize(@ast : Expr, @params : Array(Crisp::Expr), @env : Env, @fn : Func)
     end
   end
 
@@ -46,7 +48,7 @@ module Crisp
 
     def initialize(@val : Type)
       @is_macro = false
-      @meta = nil as Expr?
+      @meta = nil.as Expr?
     end
 
     def initialize(other : Expr)

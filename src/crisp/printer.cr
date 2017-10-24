@@ -10,8 +10,8 @@ module Crisp
       when Nil          then "nil"
       when Bool         then value.to_s
       when Int32        then value.to_s
-      when Crisp::List    then "(#{value.map{|v| print(v) as String}.join(" ")})"
-      when Crisp::Vector  then "[#{value.map{|v| print(v) as String}.join(" ")}]"
+      when Crisp::List    then "(#{value.map{|v| print(v).as String}.join(" ")})"
+      when Crisp::Vector  then "[#{value.map{|v| print(v).as String}.join(" ")}]"
       when Crisp::Symbol  then value.str.to_s
       when Crisp::Func    then "<function>"
       when Crisp::Closure then "<closure>"

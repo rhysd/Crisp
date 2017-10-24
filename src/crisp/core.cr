@@ -34,7 +34,7 @@ module Crisp
     a = args.first.unwrap
     case a
     when Array
-      a.size as Int32
+      a.size.as Int32
     when Nil
       0
     else
@@ -77,7 +77,7 @@ module Crisp
   end
 
   def cons(args)
-    head, tail = args[0] as Crisp::Expr, args[1].unwrap
+    head, tail = args[0].as Crisp::Expr, args[1].unwrap
     Crisp.eval_error "2nd arg of cons must be list" unless tail.is_a? Array
     ([head] + tail).to_crisp_value
   end
