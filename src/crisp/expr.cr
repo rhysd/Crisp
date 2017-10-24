@@ -5,6 +5,7 @@ module Crisp
 
   class Symbol
     property :str
+
     def initialize(@str : String)
     end
 
@@ -26,6 +27,7 @@ module Crisp
 
   class Atom
     property :val
+
     def initialize(@val : Expr)
     end
 
@@ -36,6 +38,7 @@ module Crisp
 
   class Closure
     property :ast, :params, :env, :fn
+
     def initialize(@ast : Expr, @params : Array(Crisp::Expr), @env : Env, @fn : Func)
     end
   end
@@ -109,7 +112,6 @@ end
 
 class Array
   def to_crisp_value(t = Crisp::List)
-    each_with_object(t.new){|e, l| l << e}
+    each_with_object(t.new) { |e, l| l << e }
   end
 end
-

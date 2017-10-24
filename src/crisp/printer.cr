@@ -7,19 +7,19 @@ module Crisp
 
     def print(value)
       case value
-      when Nil          then "nil"
-      when Bool         then value.to_s
-      when Int32        then value.to_s
-      when Crisp::List    then "(#{value.map{|v| print(v).as String}.join(" ")})"
-      when Crisp::Vector  then "[#{value.map{|v| print(v).as String}.join(" ")}]"
+      when Nil            then "nil"
+      when Bool           then value.to_s
+      when Int32          then value.to_s
+      when Crisp::List    then "(#{value.map { |v| print(v).as String }.join(" ")})"
+      when Crisp::Vector  then "[#{value.map { |v| print(v).as String }.join(" ")}]"
       when Crisp::Symbol  then value.str.to_s
       when Crisp::Func    then "<function>"
       when Crisp::Closure then "<closure>"
       when Crisp::HashMap
-        "{#{value.map{|k, v| "#{print(k)} #{print(v)}"}.join(" ")}}"
+        "{#{value.map { |k, v| "#{print(k)} #{print(v)}" }.join(" ")}}"
       when String
         case
-        when value.empty?()
+        when value.empty?
           @print_readably ? value.inspect : value
         when value[0] == '\u029e'
           ":#{value[1..-1]}"
