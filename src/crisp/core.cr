@@ -339,7 +339,7 @@ module Crisp
   end
 
   def time_ms(args)
-    Time.now.epoch_ms.to_i32
+    Time.utc.to_unix_ms.to_i32
   end
 
   # Note:
@@ -356,7 +356,7 @@ module Crisp
     "+"           => calc_op(:+),
     "-"           => calc_op(:-),
     "*"           => calc_op(:*),
-    "/"           => calc_op(:/),
+    "/"           => calc_op(://),
     "list"        => func(:list),
     "list?"       => func(:list?),
     "empty?"      => func(:empty?),

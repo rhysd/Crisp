@@ -1,0 +1,15 @@
+name: crisp
+version: 0.1.0
+
+authors:
+  - rhysd <rhysd@users.noreply.github.com>
+
+description: |
+  Crisp is a Lisp dialect implemented with Crystal.
+
+dependencies:
+  readline:
+    github: crystal-lang/crystal-readline
+    version: "~> 0.1.0"
+
+license: MIT

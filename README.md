@@ -34,8 +34,8 @@ Please see [mal test cases](https://github.com/rhysd/Crisp/tree/master/spec/cris
 
 ## Development Environment
 
-- OS X
-- Crystal 0.23.1
+- macOS
+- Crystal 0.33.0
 
 ## License
 

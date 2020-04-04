@@ -1,4 +1,5 @@
 language: crystal
 script:
+  - shards install
   - crystal build crisp.cr
   - crystal spec
