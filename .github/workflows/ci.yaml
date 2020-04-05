@@ -1,0 +1,23 @@
+name: CI
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '3 4 5 * *'
+
+jobs:
+  unit-test:
+    name: build and unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Crystal
+        run: |
+          curl -sSL https://dist.crystal-lang.org/apt/setup.sh | sudo bash
+          sudo apt install crystal
+          crystal --version
+          shards --version
+      - run: sudo apt install libreadline-dev
+      - run: shards install
+      - run: crystal build crisp.cr
+      - run: crystal spec
