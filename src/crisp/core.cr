@@ -71,8 +71,8 @@ module Crisp
     Crisp.eval_error "argument of slurp must be string" unless head.is_a? String
     begin
       File.read head
-    rescue e : Errno
-      Crisp.eval_error "no such file"
+    rescue e : File::NotFoundError
+      Crisp.eval_error "no such file: #{head}"
     end
   end
 
