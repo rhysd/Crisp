@@ -24,8 +24,10 @@ This project is a toy box for my dynamic language ideas.
 
 ## Installation
 
-1. Install `crystal` command ([instruction](http://crystal-lang.org/docs/installation/index.html))
-2. `$ crystal run /path/to/Crisp/crisp.cr` or use `crystal compile` to create a binary.
+1. [Install `crystal` command](https://crystal-lang.org/install/)
+2. Run `shards install` for installing dependencies
+3. Run `crystal build /path/to/Crisp/crisp.cr` to build an executable (add `--release` for the release build)
+4. Put the built `crisp` executable in a `$PATH` directory
 
 ## Examples
 
