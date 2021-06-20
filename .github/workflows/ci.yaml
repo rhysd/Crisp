@@ -4,6 +4,7 @@ on:
   pull_request:
   schedule:
     - cron: '3 4 5 * *'
+  workflow_dispatch:
 
 jobs:
   unit-test:
