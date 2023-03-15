@@ -35,8 +35,8 @@ Please see [mal test cases](https://github.com/rhysd/Crisp/tree/master/spec/cris
 
 ## Development Environment
 
-- macOS
-- Crystal 0.33.0
+- macOS or Linux
+- Crystal 0.33.0 or later
 
 ## License
 
@@ -45,4 +45,3 @@ Distributed under [the MIT License](http://opensource.org/licenses/MIT).
 ```
 Copyright (c) 2015 rhysd
 ```
-
